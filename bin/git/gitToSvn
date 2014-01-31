@@ -1,0 +1,79 @@
+#!/bin/bash
+################################################################################
+# Dev-Tools
+#
+# LICENSE:
+# This software is released under the GNU Lesser General Public License version 3
+# http://www.gnu.org/licenses/lgpl-3.0.txt
+#
+# Copyright 2014 Lars Dietrich. All rights reserved.
+################################################################################
+
+##
+# Convert SVN to GIT repository.
+#
+# $1    string      SVN url
+# $2    string      Path to users file (SVNUSER = Full Name <email@address.com>)
+# $3    string      Path to new git repository.
+
+if [ -n "$1" ]; then
+    printf '%s\n' 'SVN url not set.'
+    exit 1
+fi
+if [ -e "$2" ]; then
+    printf '%s\n' 'Users file not set.'
+    exit 1
+fi
+if [ -n "$3" ]; then
+    printf '%s\n' 'Path for git repository not set.'
+    exit 1
+fi
+
+set -o errexit
+
+svnUrl="$1"
+usersFile="$2"
+gitDir="$3"
+
+# Clone
+printf '%s\n' 'Clone SVN.'
+git svn clone \
+    --stdlayout \
+    --preserve-empty-dirs \
+    --placeholder-filename='.gitkeep' \
+    --authors-file="$usersFile" \
+    "$svnUrl" \
+    "$gitDir"
+
+(
+    cd "$gitDir"
+
+    printf '%s\n' 'Create branches.'
+    # Create branches
+    for branch in `git branch -r | grep -v '\s*\(trunk\|trunk@.*\)'`; do
+      git branch $branch refs/remotes/$branch
+    done
+
+    printf '%s\n' 'Create tags.'
+    # Create tags
+    for tag in `git branch -r | grep "tags/" | sed 's/ tags\///'`; do
+        git tag -a -m"Converting SVN tags" "$tag" "refs/remotes/tags/$tag"
+    done
+    
+    printf '%s\n' 'Create .gitignore from SVN.'
+    git svn show-ignore > .gitignore
+    
+    printf '%s\n' 'Add .gitignore to git.'
+    git add .gitignore    
+    git commit -m 'Convert svn:ignore properties to .gitignore.'
+
+    printf '%s\n' 'Save SVN externals in .svn-externals.'
+    git svn show-externals > .svn-externals
+    
+    printf '%s\n' 'Add .svn-externals to git.'
+    git add .svn-externals
+    git commit -m 'Convert svn:externals properties to .svn-externals.'
+)
+
+printf '%s\n' 'Finish.'
+
