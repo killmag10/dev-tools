@@ -16,15 +16,15 @@
 # $2    string      Path to users file (SVNUSER = Full Name <email@address.com>)
 # $3    string      Path to new git repository.
 
-if [ -n "$1" ]; then
+if [ ! -n "$1" ]; then
     printf '%s\n' 'SVN url not set.'
     exit 1
 fi
-if [ -e "$2" ]; then
+if [ ! -e "$2" ]; then
     printf '%s\n' 'Users file not set.'
     exit 1
 fi
-if [ -n "$3" ]; then
+if [ ! -n "$3" ]; then
     printf '%s\n' 'Path for git repository not set.'
     exit 1
 fi
