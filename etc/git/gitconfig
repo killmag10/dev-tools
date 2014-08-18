@@ -1,0 +1,17 @@
+[user]
+    name = NAME
+    email = EMAIL
+
+[push]
+    default = simple
+
+[log]
+    decorate = full
+
+[alias]
+    log-full = log --graph
+    changelog = \
+        !sh -c 'git log --format=\"* [%h](https://github.com/killmag10/nodeschnaps/commit/%H): %s\" \"$@\" \
+        | sed \"s/\\\\[[^[]\\\\+\\\\]/**\\\\0**/g\" \
+        | sed \"s/\\*\\*\\\\(\\\\[[^[]\\\\+\\\\]\\\\)\\*\\*/\\\\1/\" \
+        | sed \"s/\\*\\\\{4\\\\}//g\"' "$@"
