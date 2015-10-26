@@ -35,3 +35,6 @@
     whois = "!sh -c 'git log -i -1 --pretty=\"format:%an <%ae>\n\" --author=\"$1\"' -"
     whatis = show -s --pretty='tformat:%h (%s, %ad)' --date=short
     changelog = !sh -c 'git log --pretty=format:\"* %h %B\" $1..HEAD | sort -k 3' -
+
+[mergetool "meld"]
+	cmd = meld $LOCAL $MERGED $REMOTE -o $MERGED
